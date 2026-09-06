@@ -53,33 +53,33 @@
 :root {
   --radius: 0.25rem;
 
-  --ivory: oklch(0.968 0.014 84);
-  --champagne: oklch(0.906 0.032 82);
-  --gold: oklch(0.702 0.086 78);
-  --henna: oklch(0.412 0.093 44);
-  --henna-soft: oklch(0.552 0.079 47);
-  --henna-faint: oklch(0.412 0.093 44 / 0.28);
-  --ink: oklch(0.286 0.049 42);
+  --ivory: #05060A;
+  --champagne: #F0D18B;
+  --gold: #D6A85F;
+  --henna: #D6A85F;
+  --henna-soft: #B9853F;
+  --henna-faint: rgba(214, 168, 95, 0.18);
+  --ink: #E8C982;
 
   --background: var(--ivory);
   --foreground: var(--ink);
-  --card: oklch(0.978 0.011 86);
+  --card: #0A0C11;
   --card-foreground: var(--ink);
   --popover: var(--card);
   --popover-foreground: var(--ink);
   --primary: var(--henna);
-  --primary-foreground: oklch(0.978 0.011 86);
-  --secondary: oklch(0.934 0.022 84);
+  --primary-foreground: #05060A;
+  --secondary: #0A0C11;
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.94 0.018 84);
-  --muted-foreground: oklch(0.512 0.041 48);
-  --accent: var(--gold);
-  --accent-foreground: oklch(0.24 0.045 44);
-  --destructive: oklch(0.51 0.16 27);
-  --destructive-foreground: oklch(0.978 0.011 86);
-  --border: oklch(0.412 0.093 44 / 0.22);
-  --input: oklch(0.412 0.093 44 / 0.3);
-  --ring: var(--gold);
+  --muted: #0A0C11;
+  --muted-foreground: #C79B5D;
+  --accent: #B9853F;
+  --accent-foreground: #05060A;
+  --destructive: #76501F;
+  --destructive-foreground: #E8C982;
+  --border: #A87838;
+  --input: #A87838;
+  --ring: #F0D18B;
 }
 
 @layer base {
@@ -100,7 +100,7 @@
   }
 
   ::selection {
-    background: oklch(0.702 0.086 78 / 0.35);
+    background: rgba(214, 168, 95, 0.18);
   }
 }
 
@@ -129,13 +129,13 @@
     background:
       radial-gradient(
         120% 80% at 50% 12%,
-        oklch(1 0 0 / 0.5) 0%,
-        oklch(1 0 0 / 0) 45%
+        rgba(240, 209, 139, 0.18) 0%,
+        rgba(240, 209, 139, 0) 45%
       ),
       radial-gradient(
         95% 70% at 50% 50%,
-        oklch(0.412 0.093 44 / 0) 55%,
-        oklch(0.412 0.093 44 / 0.14) 100%
+        rgba(5, 6, 10, 0) 55%,
+        rgba(5, 6, 10, 0.7) 100%
       );
   }
 }
@@ -169,8 +169,8 @@
   background: linear-gradient(
     90deg,
     transparent,
-    oklch(0.702 0.086 78 / 0.7) 20%,
-    oklch(0.702 0.086 78 / 0.7) 80%,
+    rgba(214, 168, 95, 0.7) 20%,
+    rgba(214, 168, 95, 0.7) 80%,
     transparent
   );
   height: 1px;
