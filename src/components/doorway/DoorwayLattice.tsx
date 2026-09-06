@@ -11,8 +11,8 @@ export function DoorwayLattice({ className = "" }: { className?: string }) {
           d={d}
           delay={constructionDelay("lattice", i, 0.09)}
           duration={0.7}
-          strokeWidth={0.55}
-          opacity={0.7}
+          strokeWidth={0.42}
+          opacity={0.56}
         />
       ))}
       {latticeCrossLines.map((d, i) => (
@@ -21,11 +21,11 @@ export function DoorwayLattice({ className = "" }: { className?: string }) {
           d={d}
           delay={constructionDelay("lattice", i, 0.09) + 0.15}
           duration={0.7}
-          strokeWidth={0.55}
-          opacity={0.7}
+          strokeWidth={0.42}
+          opacity={0.56}
         />
       ))}
-      <DrawPath d="M 148 298 H 212" delay={7.25} duration={0.6} strokeWidth={0.45} opacity={0.55} />
+      <DrawPath d="M 148 298 H 212" delay={7.25} duration={0.6} strokeWidth={0.34} opacity={0.4} />
     </g>
   );
 }

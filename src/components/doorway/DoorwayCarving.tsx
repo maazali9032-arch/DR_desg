@@ -18,8 +18,8 @@ export function DoorwayCarving({ className = "" }: { className?: string }) {
             d={`M ${p.x} ${p.y} Q 180 112 ${q.x} ${q.y}`}
             delay={constructionDelay("carving", i, 0.1)}
             duration={c.carving.duration}
-            strokeWidth={0.65}
-            opacity={0.78}
+            strokeWidth={0.52}
+            opacity={0.62}
           />
         );
       })}
@@ -29,7 +29,7 @@ export function DoorwayCarving({ className = "" }: { className?: string }) {
           key={`rosette-${x}`}
           cx={x}
           cy={128 - Math.abs(180 - x) * 0.12}
-          r={2.2}
+          r={2}
           mode="dot"
           delay={6.1 + i * 0.1}
           fill="currentColor"

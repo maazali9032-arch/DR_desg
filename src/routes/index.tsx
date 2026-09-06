@@ -11,6 +11,7 @@ import { Rsvp } from "@/components/invitation/Rsvp";
 import { LanguageSwitcher } from "@/components/invitation/LanguageSwitcher";
 import { LanguageProvider, useLanguage, type Language } from "@/lib/language";
 import { DoorwayStage } from "@/components/doorway/DoorwayStage";
+import { VenueStage } from "@/components/venue/VenueStage";
 import { OrnamentStage, DrawPath, DrawCircle } from "@/components/animation/Draw";
 
 export const Route = createFileRoute("/")({
@@ -184,8 +185,10 @@ function Hero() {
   return (
     <section className="relative flex min-h-[100svh] items-center justify-center px-5 pt-20 pb-28">
       <div className="relative w-full max-w-[390px]">
-        <DoorwayStage className="pointer-events-none absolute -inset-x-8 -top-16 h-[calc(100%+8rem)] w-[calc(100%+4rem)] ink-line opacity-80" />
-        <div className="relative px-8 py-16 text-center">
+        <div className="pointer-events-none absolute inset-y-2 -left-3 -right-3 sm:-left-5 sm:-right-5">
+          <DoorwayStage className="h-full w-full ink-line opacity-[0.68]" mode="opening" />
+        </div>
+        <div className="relative z-10 mx-auto w-[82%] max-w-[320px] py-16 text-center sm:w-[84%]">
           {inv.kind !== "none" && inv.text && (
             <motion.div
               initial={{ opacity: 0, filter: "blur(8px)" }}
@@ -213,9 +216,9 @@ function Hero() {
             animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
             transition={{ delay: 1.05, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="display-name text-[3.1rem] sm:text-6xl">{d.couple.groom}</span>
+            <span className="display-name text-[2.85rem] leading-none sm:text-6xl">{d.couple.groom}</span>
             <span className="my-1.5 font-display text-2xl text-accent italic">{d.couple.joiner}</span>
-            <span className="display-name text-[3.1rem] sm:text-6xl">{d.couple.bride}</span>
+            <span className="display-name text-[2.85rem] leading-none sm:text-6xl">{d.couple.bride}</span>
           </motion.h1>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.1, duration: 1.1 }} className="mt-8">
@@ -282,8 +285,10 @@ function CountdownSection() {
   const { t } = useLanguage();
   return (
     <Section className="relative py-20">
-      <DoorwayStage className="pointer-events-none absolute inset-x-10 -top-16 h-36 w-[calc(100%-5rem)] opacity-25 ink-line" compact />
-      <div className="relative text-center">
+      <div className="pointer-events-none absolute inset-x-3 -top-2 bottom-4 opacity-[0.24] ink-line sm:inset-x-5">
+        <DoorwayStage className="h-full w-full" mode="frame" />
+      </div>
+      <div className="relative z-10 px-4 text-center">
         <Eyebrow>{t.counting}</Eyebrow>
         <Reveal delay={0.15}><p className="display-name mt-4 text-2xl">{t.untilNikah}</p></Reveal>
       </div>
@@ -325,9 +330,9 @@ function VenueSection() {
   const { t } = useLanguage();
   return (
     <Section className="relative py-24">
-      <div className="relative mx-auto flex min-h-[470px] max-w-[330px] items-center justify-center">
-        <DoorwayStage className="pointer-events-none absolute inset-0 h-full w-full ink-line opacity-80" compact />
-        <div className="relative px-10 pt-14 text-center">
+      <div className="relative mx-auto min-h-[520px] max-w-[350px]">
+        <VenueStage className="pointer-events-none absolute inset-x-0 top-0 h-[210px] w-full ink-line opacity-[0.82]" />
+        <div className="relative z-10 mx-auto max-w-[300px] px-7 pt-24 text-center">
           <Eyebrow>{t.venue}</Eyebrow>
           <Reveal delay={0.15}><h2 className="display-name mt-4 text-[1.9rem] leading-tight">{d.venue.name}</h2></Reveal>
           <Reveal delay={0.25}>
@@ -413,15 +418,17 @@ function Finale() {
   const d = useWedding();
   return (
     <section className="relative overflow-hidden px-6 pt-28 pb-20">
-      <div className="relative mx-auto flex aspect-[360/620] w-full max-w-[390px] items-center justify-center">
-        <DoorwayStage className="pointer-events-none absolute inset-0 h-full w-full ink-line" compact />
-        <div className="relative mt-16 max-w-[62%] text-center">
+      <div className="relative mx-auto max-w-[390px]">
+        <div className="pointer-events-none absolute inset-x-2 top-0 h-56 ink-line opacity-[0.5]">
+          <DoorwayStage className="h-full w-full" mode="finale" />
+        </div>
+        <div className="relative z-10 mx-auto max-w-[290px] px-5 pt-20 text-center">
           <p className="display-name text-[1.7rem] leading-tight sm:text-3xl">{d.couple.groom}<span className="mx-1.5 text-accent">{d.couple.joiner}</span>{d.couple.bride}</p>
           <div className="rule-gold mx-auto mt-4 w-16" />
           <p className="mt-4 font-sans text-[0.55rem] leading-[1.9] tracking-[0.3em] text-muted-foreground uppercase sm:text-[0.62rem]">{d.finale.title}</p>
         </div>
       </div>
-      <div className="mx-auto mt-10 max-w-[430px] text-center">
+      <div className="mx-auto mt-12 max-w-[430px] text-center">
         <Reveal><p className="font-display text-base text-muted-foreground italic">{d.finale.note}</p></Reveal>
         <Reveal delay={0.3}><p className="eyebrow mt-12 text-[0.5rem]">{d.couple.groom} {d.couple.joiner} {d.couple.bride} · {d.headlineDate}</p></Reveal>
       </div>

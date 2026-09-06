@@ -7,10 +7,10 @@ export function DoorwayFrame({ className = "" }: { className?: string }) {
 
   return (
     <g className={className}>
-      <DrawPath d={doorwayPaths.frame.leftOuter} delay={c.frameOuter.delay} duration={c.frameOuter.duration} strokeWidth={1.15} />
-      <DrawPath d={doorwayPaths.frame.crown} delay={c.frameOuter.delay + 0.35} duration={1.8} strokeWidth={1.15} />
-      <DrawPath d={doorwayPaths.frame.leftInner} delay={c.frameInner.delay} duration={c.frameInner.duration} strokeWidth={0.65} opacity={0.75} />
-      <DrawPath d={doorwayPaths.frame.crownInner} delay={c.frameInner.delay + 0.2} duration={1.5} strokeWidth={0.65} opacity={0.75} />
+      <DrawPath d={doorwayPaths.frame.leftOuter} delay={c.frameOuter.delay} duration={c.frameOuter.duration} strokeWidth={0.9} />
+      <DrawPath d={doorwayPaths.frame.crown} delay={c.frameOuter.delay + 0.35} duration={1.8} strokeWidth={0.9} />
+      <DrawPath d={doorwayPaths.frame.leftInner} delay={c.frameInner.delay} duration={c.frameInner.duration} strokeWidth={0.5} opacity={0.62} />
+      <DrawPath d={doorwayPaths.frame.crownInner} delay={c.frameInner.delay + 0.2} duration={1.5} strokeWidth={0.5} opacity={0.62} />
     </g>
   );
 }
