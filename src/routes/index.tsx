@@ -186,13 +186,17 @@ export function Invitation({ data = wedding }: { data?: WeddingData }) {
 function Hero() {
   const d = useWedding();
   const { t } = useLanguage();
+  const hasGroom = Boolean(d.couple.groom);
+  const hasBride = Boolean(d.couple.bride);
+  const invocationFont = d.invocation.font === "arabic" ? "var(--font-arabic)" : d.invocation.font === "devanagari" ? "var(--font-devanagari)" : "var(--font-display)";
   return (
     <section className="reference-section relative min-h-[100svh] overflow-hidden px-5 py-16">
       <div className="reference-panel mx-auto min-h-[calc(100svh-3rem)] max-w-[430px]">
         <IntroArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-3rem)] max-w-[320px] flex-col items-center px-5 pt-[23svh] text-center pb-20">
           <Reveal><p className="reference-eyebrow">Together with their families</p></Reveal>
-          <Reveal delay={0.15}><h1 className="reference-name mt-8">{d.couple.groom} <span>&amp;</span> {d.couple.bride}</h1></Reveal>
+          {d.invocation.text && <Reveal delay={0.1}><p className="mt-5 text-[1.7rem] leading-relaxed" dir={d.invocation.dir} style={{ fontFamily: invocationFont }}>{d.invocation.text}</p></Reveal>}
+          {(hasGroom || hasBride) && <Reveal delay={0.15}><h1 className="reference-name mt-8"><span className="block">{d.couple.groom}</span>{hasGroom && hasBride && <span className="my-2 block">&amp;</span>}<span className="block">{d.couple.bride}</span></h1></Reveal>}
           <Reveal delay={0.3}><p className="mt-12 max-w-[17rem] font-display text-[1.25rem] leading-[1.65] text-foreground/80">{d.message.body || "invite you to celebrate their special day"}</p></Reveal>
           <div className="mt-12 w-24"><ArchitecturalRule /></div>
         </div>
@@ -204,6 +208,8 @@ function Hero() {
 function CountdownSection() {
   const d = useWedding();
   const { t } = useLanguage();
+  const target = new Date(d.weddingISO).getTime();
+  if (!Number.isFinite(target) || target <= Date.now()) return null;
   return (
     <section className="reference-section relative overflow-hidden px-5 py-20">
       <div className="reference-panel mx-auto min-h-[800px] max-w-[430px]">
@@ -293,14 +299,16 @@ function EventsSection() {
 function VenueSection() {
   const d = useWedding();
   const { t } = useLanguage();
+  const hasVenue = Boolean(d.venue.name || d.venue.address || d.venue.city || d.venue.mapsUrl);
+  if (!hasVenue) return null;
   return (
     <section className="reference-section relative overflow-hidden px-5 py-20">
       <div className="reference-panel mx-auto min-h-[760px] max-w-[430px]">
         <VenueArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
         <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-44 pb-28 text-center">
           <Eyebrow>{t.venue}</Eyebrow>
-          <Reveal delay={0.12}><h2 className="reference-name mt-8 text-[2.4rem]">{d.venue.name}</h2></Reveal>
-          <Reveal delay={0.25}><p className="mt-8 font-display text-[1.2rem] leading-[1.7] text-foreground/80">{d.venue.address}</p><p className="mt-1 font-sans text-[0.68rem] tracking-[0.26em] text-foreground uppercase">{d.venue.city}</p></Reveal>
+          {d.venue.name && <Reveal delay={0.12}><h2 className="reference-name mt-8 text-[2.4rem]">{d.venue.name}</h2></Reveal>}
+          {(d.venue.address || d.venue.city) && <Reveal delay={0.25}>{d.venue.address && <p className="mt-8 font-display text-[1.2rem] leading-[1.7] text-foreground/80">{d.venue.address}</p>}{d.venue.city && <p className="mt-1 font-sans text-[0.68rem] tracking-[0.26em] text-foreground uppercase">{d.venue.city}</p>}</Reveal>}
           {d.venue.mapsUrl && <Reveal delay={0.35}><a href={d.venue.mapsUrl} target="_blank" rel="noreferrer noopener" className="reference-map-button mt-10 inline-flex items-center gap-3">⌖ <span>{t.directions}</span></a></Reveal>}
         </div>
       </div>
@@ -381,12 +389,14 @@ function ContactSection() {
 
 function Finale() {
   const d = useWedding();
+  const hasGroom = Boolean(d.couple.groom);
+  const hasBride = Boolean(d.couple.bride);
   return (
     <section className="reference-section relative overflow-hidden px-5 pt-20 pb-28">
       <div className="relative mx-auto min-h-[760px] max-w-[430px]">
         <FinaleArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
         <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-56 text-center">
-          <Reveal><p className="reference-name text-[2.2rem]">{d.couple.groom} <span>&amp;</span> {d.couple.bride}</p></Reveal>
+          {(hasGroom || hasBride) && <Reveal><p className="reference-name text-[2.2rem]"><span className="block">{d.couple.groom}</span>{hasGroom && hasBride && <span className="my-2 block">&amp;</span>}<span className="block">{d.couple.bride}</span></p></Reveal>}
           <div className="mx-auto mt-10 w-24"><ArchitecturalRule /></div>
           <Reveal delay={0.2}><p className="mt-10 font-sans text-[0.8rem] tracking-[0.34em] text-foreground uppercase">{d.finale.title}</p></Reveal>
           <Reveal delay={0.35}><p className="reference-script mt-12 text-[1.7rem] leading-[1.45]">{d.finale.note}</p></Reveal>

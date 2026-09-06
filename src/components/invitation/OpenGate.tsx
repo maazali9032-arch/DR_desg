@@ -6,6 +6,8 @@ import { useLanguage } from "@/lib/language";
 export function OpenGate({ groom, bride, date, city, onOpen }: { groom: string; bride: string; date?: string; city?: string; onOpen: () => void }) {
   const [open, setOpen] = useState(false);
   const { t } = useLanguage();
+  const hasGroom = Boolean(groom);
+  const hasBride = Boolean(bride);
 
   useEffect(() => {
     document.body.style.overflow = open ? "" : "hidden";
@@ -24,8 +26,8 @@ export function OpenGate({ groom, bride, date, city, onOpen }: { groom: string; 
             <OpeningArchitecture className="absolute inset-0 h-full w-full gold-line" />
             <div className="absolute inset-x-8 top-[48%] -translate-y-1/2 text-center sm:inset-x-10">
               <motion.p className="reference-eyebrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 6.0, duration: 0.8 }}>{t.weddingOf}</motion.p>
-              <motion.h1 className="reference-name mt-6" initial={{ opacity: 0, filter: "blur(12px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} transition={{ delay: 6.25, duration: 1.1 }}>{groom} <span>&amp;</span> {bride}</motion.h1>
-              <motion.div className="mt-9" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.8, duration: 0.8 }}><p className="reference-date font-sans text-[0.72rem] tracking-[0.3em] uppercase">{date}</p>{city && <p className="reference-date mt-2 font-sans text-[0.72rem] tracking-[0.24em] uppercase">{city.split(",")[0]}</p>}</motion.div>
+              {(hasGroom || hasBride) && <motion.h1 className="reference-name mt-6" initial={{ opacity: 0, filter: "blur(12px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} transition={{ delay: 6.25, duration: 1.1 }}><span className="block">{groom}</span>{hasGroom && hasBride && <span className="my-2 block">&amp;</span>}<span className="block">{bride}</span></motion.h1>}
+              {(date || city) && <motion.div className="mt-9" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.8, duration: 0.8 }}>{date && <p className="reference-date font-sans text-[0.72rem] tracking-[0.3em] uppercase">{date}</p>}{city && <p className="reference-date mt-2 font-sans text-[0.72rem] tracking-[0.24em] uppercase">{city.split(",")[0]}</p>}</motion.div>}
             </div>
             <motion.button
               type="button"

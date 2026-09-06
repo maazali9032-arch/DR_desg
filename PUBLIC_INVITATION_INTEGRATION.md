@@ -297,3 +297,14 @@ Configure direct-refresh support for /:slug (SPA rewrite or framework dynamic ro
 - [ ] Any QR uses the exact RPC-provided `invitation.public_url`; no browser-generated fallback URL exists.
 - [ ] External links use `noopener noreferrer`.
 - [ ] Production build passes.
+
+## Design-specific presentation rules
+
+### Couple-name hero layout
+
+For this design’s invitation hero:
+
+- Render the groom’s name, the `&` symbol, and the bride’s name on three separate centered lines.
+- The `&` must be visually isolated between the two names; never place it on the same line as either name.
+- If only one name is provided, render only that name and hide the `&`.
+- Show the wedding date only once above or below reduce the redundency.

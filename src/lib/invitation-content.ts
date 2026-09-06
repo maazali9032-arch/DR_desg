@@ -24,6 +24,21 @@ const asRecord = (value: unknown): RecordValue =>
 const string = (value: unknown, fallback = "") => typeof value === "string" ? value.trim() : fallback;
 const list = (value: unknown) => Array.isArray(value) ? value : [];
 
+function isPublicImageUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function invocationFont(text: string): "arabic" | "devanagari" | "serif" {
+  if (/\p{Script=Arabic}/u.test(text)) return "arabic";
+  if (/\p{Script=Devanagari}/u.test(text)) return "devanagari";
+  return "serif";
+}
+
 function formatDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
@@ -49,12 +64,12 @@ function eventFrom(value: unknown, index: number, content: RecordValue): Wedding
 
 function galleryFrom(value: unknown): GalleryImage[] {
   return list(value).flatMap((item, index) => {
-    if (typeof item === "string" && item.trim()) {
+    if (typeof item === "string" && isPublicImageUrl(item.trim())) {
       return [{ src: item.trim(), alt: "Wedding moment", width: 800, height: 1000, span: index % 2 ? "wide" : "tall" }];
     }
     const image = asRecord(item);
     const src = string(image.url) || string(image.src) || string(image.image_url);
-    if (!src) return [];
+    if (!isPublicImageUrl(src)) return [];
     return [{
       src,
       alt: string(image.alt) || string(image.caption) || "Wedding moment",
@@ -108,7 +123,7 @@ export async function fetchPublicInvitation(slug: string): Promise<PublicInvitat
 export function mapShopFallback(value: unknown): ShopFallback {
   const shop = asRecord(value);
   return {
-    name: string(shop.name, "Henna Bloom Invites"), phone: string(shop.phone), whatsapp: string(shop.whatsapp),
+    name: string(shop.name), phone: string(shop.phone), whatsapp: string(shop.whatsapp),
     address: string(shop.address), city: string(shop.city), businessContact: string(shop.business_contact),
   };
 }
@@ -118,7 +133,7 @@ export function mapInvitation(response: PublicInvitationResponse): WeddingData {
   const invitation = asRecord(response.invitation);
   const weddingDate = string(content.wedding_date);
   const events = list(content.events).map((event, index) => eventFrom(event, index, content)).filter((event): event is WeddingEvent => !!event);
-  const photos = [string(content.groom_photo_url), string(content.bride_photo_url)].filter(Boolean).map((src, index) => ({
+  const photos = [string(content.groom_photo_url), string(content.bride_photo_url)].filter(isPublicImageUrl).map((src, index) => ({
     src, alt: index ? "Bride" : "Groom", width: 800, height: 1000, span: "tall" as const,
   }));
   const invocation = string(content.invocation);
@@ -130,7 +145,7 @@ export function mapInvitation(response: PublicInvitationResponse): WeddingData {
       bride: { photoUrl: string(content.bride_photo_url), qualification: string(content.bride_qualification), occupation: string(content.bride_occupation), parents: string(content.bride_parents) },
       relatives: string(content.relatives),
     },
-    invocation: { kind: invocation ? "custom" : "none", text: invocation, dir: "ltr", font: "serif" },
+    invocation: { kind: invocation ? "custom" : "none", text: invocation, dir: /\p{Script=Arabic}/u.test(invocation) ? "rtl" : "ltr", font: invocationFont(invocation) },
     headlineDate: formatDate(weddingDate),
     weddingISO: weddingDate || string(content.start_time),
     message: { kicker: "Together with their families", body: "invite you to celebrate their special day", closing: "" },
