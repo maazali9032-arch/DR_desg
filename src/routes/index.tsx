@@ -153,19 +153,30 @@ export function Invitation({ data = wedding }: { data?: WeddingData }) {
   return (
     <LanguageProvider language={language} setLanguage={setLanguage}>
       <WeddingContext.Provider value={d}>
-        <LanguageSwitcher />
         <main className="paper-grain paper-vignette relative min-h-screen overflow-x-hidden bg-background">
           <OpenGate groom={d.couple.groom} bride={d.couple.bride} date={d.headlineDate} city={d.venue.city} onOpen={onOpen} />
-          {d.music.enabled && opened && <MusicToggle playing={playing} onToggle={toggleMusic} label={d.music.label} />}
 
-          <Hero />
-          <CountdownSection />
-          {d.events.length > 0 && <EventsSection />}
-          <VenueSection />
-          {d.gallery.length > 0 && <GallerySection reduced={reduced} />}
-          <RsvpSection />
-          {d.contacts.length > 0 && <ContactSection />}
-          <Finale />
+          {opened && (
+            <>
+              <LanguageSwitcher />
+              {d.music.enabled && <MusicToggle playing={playing} onToggle={toggleMusic} label={d.music.label} />}
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Hero />
+                <CountdownSection />
+                {d.events.length > 0 && <EventsSection />}
+                <VenueSection />
+                {d.gallery.length > 0 && <GallerySection reduced={reduced} />}
+                <RsvpSection />
+                {d.contacts.length > 0 && <ContactSection />}
+                <Finale />
+              </motion.div>
+            </>
+          )}
         </main>
       </WeddingContext.Provider>
     </LanguageProvider>
@@ -177,9 +188,9 @@ function Hero() {
   const { t } = useLanguage();
   return (
     <section className="reference-section relative min-h-[100svh] overflow-hidden px-5 py-16">
-      <div className="reference-panel mx-auto min-h-[calc(100svh-5rem)] max-w-[430px]">
+      <div className="reference-panel mx-auto min-h-[calc(100svh-3rem)] max-w-[430px]">
         <IntroArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
-        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] max-w-[320px] flex-col items-center px-5 pt-[20svh] text-center pb-20">
+        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-3rem)] max-w-[320px] flex-col items-center px-5 pt-[23svh] text-center pb-20">
           <Reveal><p className="reference-eyebrow">Together with their families</p></Reveal>
           <Reveal delay={0.15}><h1 className="reference-name mt-8">{d.couple.groom} <span>&amp;</span> {d.couple.bride}</h1></Reveal>
           <Reveal delay={0.3}><p className="mt-12 max-w-[17rem] font-display text-[1.25rem] leading-[1.65] text-foreground/80">{d.message.body || "invite you to celebrate their special day"}</p></Reveal>
@@ -195,9 +206,9 @@ function CountdownSection() {
   const { t } = useLanguage();
   return (
     <section className="reference-section relative overflow-hidden px-5 py-20">
-      <div className="reference-panel mx-auto min-h-[720px] max-w-[430px]">
+      <div className="reference-panel mx-auto min-h-[800px] max-w-[430px]">
         <CountdownArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
-        <div className="relative z-10 mx-auto max-w-[330px] px-4 pt-28 text-center">
+        <div className="relative z-10 mx-auto max-w-[330px] px-4 pt-36 text-center">
           <Eyebrow>{t.counting}</Eyebrow>
           <Reveal delay={0.1}><p className="reference-script mt-5">{t.untilNikah}</p></Reveal>
           <div className="mt-14"><Countdown iso={d.weddingISO} /></div>
@@ -209,11 +220,43 @@ function CountdownSection() {
 }
 
 function EventIcon({ index }: { index: number }) {
-  if (index % 3 === 0) return <svg viewBox="0 0 70 70" className="h-16 w-16 gold-line" aria-hidden="true"><path d="M35 58 C20 47 16 30 26 18 C33 10 42 11 49 18 C56 25 52 42 35 58Z" fill="none" stroke="currentColor" strokeWidth="1.3"/><path d="M35 58 C35 41 36 27 42 15 M35 45 L25 34 M37 38 L48 29" fill="none" stroke="currentColor" strokeWidth="0.9"/></svg>;
-  if (index % 3 === 1) return <svg viewBox="0 0 70 70" className="h-16 w-16 gold-line" aria-hidden="true"><path d="M16 37 H54 M20 31 H50 M24 43 H46 M27 26 Q35 19 43 26 V31 H27 Z M30 43 Q35 49 40 43" fill="none" stroke="currentColor" strokeWidth="1.2"/><circle cx="35" cy="26" r="2" fill="currentColor"/></svg>;
-  return <svg viewBox="0 0 70 70" className="h-16 w-16 gold-line" aria-hidden="true"><circle cx="28" cy="40" r="13" fill="none" stroke="currentColor" strokeWidth="1.4"/><circle cx="43" cy="30" r="13" fill="none" stroke="currentColor" strokeWidth="1.4"/><circle cx="28" cy="40" r="3" fill="none" stroke="currentColor" strokeWidth="1"/><circle cx="43" cy="30" r="3" fill="none" stroke="currentColor" strokeWidth="1"/></svg>;
+  const delay = index * 0.08;
+  if (index % 3 === 0) {
+    return (
+      <OrnamentStage className="h-[76px] w-[76px] gold-line" viewBox="0 0 76 76" immediate>
+        <g stroke="currentColor" fill="none">
+          <DrawPath d="M 38 64 C 24 53 17 38 23 25 C 27 16 36 13 44 19 C 53 26 51 43 38 64 Z" delay={delay} duration={0.65} strokeWidth={1.05} />
+          <DrawPath d="M 38 64 C 37 47 39 31 46 18 M 38 50 L 27 39 M 39 42 L 51 32 M 38 56 L 30 49" delay={delay + 0.25} duration={0.6} strokeWidth={0.7} />
+          <DrawPath d="M 26 27 C 30 23 34 22 38 24 M 42 24 C 45 25 48 28 49 31" delay={delay + 0.5} duration={0.4} strokeWidth={0.42} opacity={0.75} />
+        </g>
+      </OrnamentStage>
+    );
+  }
+  if (index % 3 === 1) {
+    return (
+      <OrnamentStage className="h-[76px] w-[76px] gold-line" viewBox="0 0 76 76" immediate>
+        <g stroke="currentColor" fill="none">
+          <DrawPath d="M 18 42 H 58 M 22 35 H 54 M 25 49 H 51" delay={delay} duration={0.45} strokeWidth={0.85} />
+          <DrawPath d="M 27 35 Q 38 22 49 35 V 39 H 27 Z" delay={delay + 0.18} duration={0.5} strokeWidth={0.72} />
+          <DrawPath d="M 31 39 V 48 M 38 39 V 48 M 45 39 V 48" delay={delay + 0.35} duration={0.4} strokeWidth={0.38} />
+          <DrawCircle cx={38} cy={25} r={2.4} mode="dot" fill="currentColor" stroke="none" delay={delay + 0.55} />
+          <DrawPath d="M 31 49 Q 38 58 45 49" delay={delay + 0.6} duration={0.4} strokeWidth={0.46} />
+        </g>
+      </OrnamentStage>
+    );
+  }
+  return (
+    <OrnamentStage className="h-[76px] w-[76px] gold-line" viewBox="0 0 76 76" immediate>
+      <g stroke="currentColor" fill="none">
+        <DrawCircle cx={30} cy={43} r={13} delay={delay} duration={0.65} strokeWidth={1.0} />
+        <DrawCircle cx={45} cy={31} r={13} delay={delay + 0.16} duration={0.65} strokeWidth={1.0} />
+        <DrawCircle cx={30} cy={43} r={3} delay={delay + 0.42} duration={0.35} strokeWidth={0.55} />
+        <DrawCircle cx={45} cy={31} r={3} delay={delay + 0.5} duration={0.35} strokeWidth={0.55} />
+        <DrawPath d="M 39 20 Q 45 13 51 20" delay={delay + 0.58} duration={0.4} strokeWidth={0.5} />
+      </g>
+    </OrnamentStage>
+  );
 }
-
 function EventsSection() {
   const d = useWedding();
   const { t } = useLanguage();
@@ -221,10 +264,10 @@ function EventsSection() {
     <section className="reference-section relative overflow-hidden px-5 py-20">
       <div className="reference-panel mx-auto min-h-[760px] max-w-[430px]">
         <EventsArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
-        <div className="relative z-10 mx-auto max-w-[320px] px-4 pt-28 pb-24 text-center">
+        <div className="relative z-10 mx-auto max-w-[326px] px-5 pt-32 pb-28 text-center">
           <Eyebrow>{t.celebrations}</Eyebrow>
           <Reveal delay={0.1}><h2 className="reference-script mt-5">{t.events}</h2></Reveal>
-          <ul className="mt-14 space-y-10">
+          <ul className="mt-16 space-y-12">
             {d.events.map((ev, i) => (
               <li key={ev.id}>
                 <Reveal delay={0.08 * i}>
@@ -254,7 +297,7 @@ function VenueSection() {
     <section className="reference-section relative overflow-hidden px-5 py-20">
       <div className="reference-panel mx-auto min-h-[760px] max-w-[430px]">
         <VenueArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
-        <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-40 pb-20 text-center">
+        <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-44 pb-28 text-center">
           <Eyebrow>{t.venue}</Eyebrow>
           <Reveal delay={0.12}><h2 className="reference-name mt-8 text-[2.4rem]">{d.venue.name}</h2></Reveal>
           <Reveal delay={0.25}><p className="mt-8 font-display text-[1.2rem] leading-[1.7] text-foreground/80">{d.venue.address}</p><p className="mt-1 font-sans text-[0.68rem] tracking-[0.26em] text-foreground uppercase">{d.venue.city}</p></Reveal>
@@ -340,9 +383,9 @@ function Finale() {
   const d = useWedding();
   return (
     <section className="reference-section relative overflow-hidden px-5 pt-20 pb-28">
-      <div className="relative mx-auto min-h-[720px] max-w-[430px]">
+      <div className="relative mx-auto min-h-[760px] max-w-[430px]">
         <FinaleArchitecture className="pointer-events-none absolute inset-0 h-full w-full gold-line" />
-        <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-52 text-center">
+        <div className="relative z-10 mx-auto max-w-[315px] px-5 pt-56 text-center">
           <Reveal><p className="reference-name text-[2.2rem]">{d.couple.groom} <span>&amp;</span> {d.couple.bride}</p></Reveal>
           <div className="mx-auto mt-10 w-24"><ArchitecturalRule /></div>
           <Reveal delay={0.2}><p className="mt-10 font-sans text-[0.8rem] tracking-[0.34em] text-foreground uppercase">{d.finale.title}</p></Reveal>
