@@ -1,0 +1,430 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+
+import { wedding, type WeddingData } from "@/data/wedding";
+import { createAmbience } from "@/lib/ambient-music";
+import { Countdown } from "@/components/invitation/Countdown";
+import { OpenGate } from "@/components/invitation/OpenGate";
+import { MusicToggle } from "@/components/invitation/MusicToggle";
+import { Rsvp } from "@/components/invitation/Rsvp";
+import { LanguageSwitcher } from "@/components/invitation/LanguageSwitcher";
+import { LanguageProvider, useLanguage, type Language } from "@/lib/language";
+import { DoorwayStage } from "@/components/doorway/DoorwayStage";
+import { OrnamentStage, DrawPath, DrawCircle } from "@/components/animation/Draw";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "ZAR Wedding Invitation" },
+      { name: "description", content: "A cinematic architectural wedding invitation." },
+      { property: "og:title", content: "ZAR Wedding Invitation" },
+      { property: "og:description", content: "Open a private wedding invitation." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: RootLanding,
+});
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const WeddingContext = createContext<WeddingData>(wedding);
+const useWedding = () => useContext(WeddingContext);
+
+function RootLanding() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+      <div>
+        <p className="eyebrow">ZAR</p>
+        <h1 className="display-name mt-4 text-4xl">Your invitation awaits</h1>
+        <p className="mt-3 text-sm text-muted-foreground">Open the invitation using its private link.</p>
+      </div>
+    </main>
+  );
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ delay, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Section({
+  children,
+  className = "",
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <section id={id} className={`relative mx-auto w-full max-w-[430px] px-7 ${className}`}>
+      {children}
+    </section>
+  );
+}
+
+function Eyebrow({ children }: { children: ReactNode }) {
+  return (
+    <Reveal>
+      <p className="eyebrow text-center">{children}</p>
+    </Reveal>
+  );
+}
+
+function ArchitecturalRule({ flip = false }: { flip?: boolean }) {
+  return (
+    <OrnamentStage className={`mx-auto h-14 w-full max-w-[280px] ink-line ${flip ? "rotate-180" : ""}`} viewBox="0 0 280 56">
+      <g stroke="currentColor" fill="none">
+        <DrawPath d="M 20 28 H 108 Q 140 4 172 28 H 260" duration={1.3} strokeWidth={0.7} />
+        <DrawPath d="M 54 28 L 68 17 L 82 28 L 68 39 Z" delay={0.5} duration={0.5} strokeWidth={0.55} />
+        <DrawCircle cx={140} cy={28} r={4} delay={0.8} duration={0.4} strokeWidth={0.6} />
+        <DrawPath d="M 106 28 L 118 16 L 130 28 L 118 40 Z M 150 28 L 162 16 L 174 28 L 162 40 Z" delay={0.7} duration={0.8} strokeWidth={0.45} opacity={0.65} />
+      </g>
+    </OrnamentStage>
+  );
+}
+
+export function Invitation({ data = wedding }: { data?: WeddingData }) {
+  const d = data;
+  const reduced = useReducedMotion() ?? false;
+  const [language, setLanguage] = useState<Language>("en");
+  const [opened, setOpened] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const ambience = useMemo(() => createAmbience(), []);
+  const audio = useMemo(() => (d.music.url ? new Audio(d.music.url) : null), [d.music.url]);
+
+  useEffect(() => () => {
+    ambience.dispose();
+    if (audio) {
+      audio.pause();
+      audio.src = "";
+    }
+  }, [ambience, audio]);
+
+  const startMusic = async () => {
+    if (audio) return audio.play();
+    return ambience.start();
+  };
+
+  const stopMusic = () => {
+    if (audio) audio.pause();
+    else ambience.stop();
+  };
+
+  const onOpen = () => {
+    setOpened(true);
+    if (d.music.enabled) {
+      void startMusic().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
+  };
+
+  const toggleMusic = () => {
+    if (playing) {
+      stopMusic();
+      setPlaying(false);
+    } else {
+      void startMusic().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
+  };
+
+  return (
+    <LanguageProvider language={language} setLanguage={setLanguage}>
+      <WeddingContext.Provider value={d}>
+        <LanguageSwitcher />
+        <main className="paper-grain paper-vignette relative min-h-screen overflow-x-hidden bg-background">
+          <OpenGate groom={d.couple.groom} bride={d.couple.bride} onOpen={onOpen} />
+          {d.music.enabled && opened && <MusicToggle playing={playing} onToggle={toggleMusic} label={d.music.label} />}
+
+          <Hero />
+          {(d.message.kicker || d.message.body || d.message.closing) && <MessageSection />}
+          {d.profiles && <CoupleSection />}
+          <CountdownSection />
+          {d.events.length > 0 && <EventsSection />}
+          <VenueSection />
+          {d.gallery.length > 0 && <GallerySection reduced={reduced} />}
+          <RsvpSection />
+          {d.contacts.length > 0 && <ContactSection />}
+          <Finale />
+        </main>
+      </WeddingContext.Provider>
+    </LanguageProvider>
+  );
+}
+
+function Hero() {
+  const d = useWedding();
+  const { t } = useLanguage();
+  const inv = d.invocation;
+  const fontClass =
+    inv.font === "arabic" ? "font-arabic" : inv.font === "devanagari" ? "font-devanagari" : "font-display";
+
+  return (
+    <section className="relative flex min-h-[100svh] items-center justify-center px-5 pt-20 pb-28">
+      <div className="relative w-full max-w-[390px]">
+        <DoorwayStage className="pointer-events-none absolute -inset-x-8 -top-16 h-[calc(100%+8rem)] w-[calc(100%+4rem)] ink-line opacity-80" />
+        <div className="relative px-8 py-16 text-center">
+          {inv.kind !== "none" && inv.text && (
+            <motion.div
+              initial={{ opacity: 0, filter: "blur(8px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              transition={{ delay: 0.3, duration: 1.2 }}
+              dir={inv.dir}
+              className="mb-9"
+            >
+              <p className={`${fontClass} text-[1.05rem] leading-loose text-primary sm:text-xl`}>{inv.text}</p>
+              {inv.translation && (
+                <p dir="ltr" className="mx-auto mt-3 max-w-[19rem] font-display text-[0.78rem] tracking-wide text-muted-foreground italic">
+                  {inv.translation}
+                </p>
+              )}
+            </motion.div>
+          )}
+
+          <motion.p className="eyebrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 1 }}>
+            {t.weddingOf}
+          </motion.p>
+
+          <motion.h1
+            className="mt-5 flex flex-col items-center"
+            initial={{ opacity: 0, filter: "blur(14px)", scale: 0.97 }}
+            animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+            transition={{ delay: 1.05, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="display-name text-[3.1rem] sm:text-6xl">{d.couple.groom}</span>
+            <span className="my-1.5 font-display text-2xl text-accent italic">{d.couple.joiner}</span>
+            <span className="display-name text-[3.1rem] sm:text-6xl">{d.couple.bride}</span>
+          </motion.h1>
+
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.1, duration: 1.1 }} className="mt-8">
+            <div className="rule-gold mx-auto w-28" />
+            <p className="mt-4 font-sans text-[0.68rem] tracking-[0.38em] text-foreground uppercase">{d.headlineDate}</p>
+            <p className="mt-2 font-display text-sm text-muted-foreground italic">{d.venue.city.split(",")[0]}</p>
+          </motion.div>
+        </div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3, duration: 1 }} className="absolute -bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
+          <span className="eyebrow text-[0.55rem]">{t.scroll}</span>
+          <motion.span className="block h-10 w-px bg-border" animate={{ scaleY: [0.3, 1, 0.3], originY: 0 }} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }} />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function MessageSection() {
+  const d = useWedding();
+  return (
+    <Section className="relative py-24">
+      <div className="relative text-center">
+        <Eyebrow>{d.message.kicker}</Eyebrow>
+        <Reveal delay={0.15}><p className="display-name mt-6 text-3xl sm:text-4xl">{d.couple.groom} <span className="text-accent">{d.couple.joiner}</span> {d.couple.bride}</p></Reveal>
+        <Reveal delay={0.3}><p className="mx-auto mt-6 max-w-[17rem] font-display text-lg leading-relaxed text-muted-foreground">{d.message.body}</p></Reveal>
+        <ArchitecturalRule />
+        <Reveal delay={0.2}><p className="mx-auto mt-8 max-w-[19rem] font-display text-[0.95rem] leading-relaxed text-foreground/80 italic">{d.message.closing}</p></Reveal>
+      </div>
+    </Section>
+  );
+}
+
+function CoupleSection() {
+  const d = useWedding();
+  const profiles = d.profiles;
+  if (!profiles) return null;
+  const people = [
+    { name: d.couple.groom, profile: profiles.groom },
+    { name: d.couple.bride, profile: profiles.bride },
+  ];
+
+  return (
+    <Section className="relative py-20">
+      <Eyebrow>With their families</Eyebrow>
+      <div className="mt-10 grid gap-10 sm:grid-cols-2">
+        {people.map(({ name, profile }) => (
+          <Reveal key={name} className="text-center">
+            {profile.photoUrl && <img src={profile.photoUrl} alt={name} loading="lazy" className="mx-auto aspect-[4/5] w-44 border border-border object-cover" />}
+            <h2 className="display-name mt-5 text-3xl">{name}</h2>
+            {profile.qualification && <p className="mt-2 font-display text-sm text-muted-foreground">{profile.qualification}</p>}
+            {profile.occupation && <p className="font-display text-sm text-muted-foreground">{profile.occupation}</p>}
+            {profile.parents && <p className="mt-3 font-display text-sm text-foreground/80">{profile.parents}</p>}
+          </Reveal>
+        ))}
+      </div>
+      {profiles.relatives && <Reveal><p className="mx-auto mt-10 max-w-sm text-center font-display text-sm text-muted-foreground">{profiles.relatives}</p></Reveal>}
+    </Section>
+  );
+}
+
+function CountdownSection() {
+  const d = useWedding();
+  const { t } = useLanguage();
+  return (
+    <Section className="relative py-20">
+      <DoorwayStage className="pointer-events-none absolute inset-x-10 -top-16 h-36 w-[calc(100%-5rem)] opacity-25 ink-line" compact />
+      <div className="relative text-center">
+        <Eyebrow>{t.counting}</Eyebrow>
+        <Reveal delay={0.15}><p className="display-name mt-4 text-2xl">{t.untilNikah}</p></Reveal>
+      </div>
+      <div className="relative z-10 mt-10"><Countdown iso={d.weddingISO} /></div>
+      <ArchitecturalRule flip />
+    </Section>
+  );
+}
+
+function EventsSection() {
+  const d = useWedding();
+  const { t } = useLanguage();
+  return (
+    <Section className="relative py-20">
+      <div className="text-center"><Eyebrow>{t.celebrations}</Eyebrow><Reveal delay={0.1}><h2 className="display-name mt-4 text-4xl">{t.events}</h2></Reveal></div>
+      <ul className="mt-14 space-y-16">
+        {d.events.map((ev, i) => (
+          <li key={ev.id} className="relative">
+            <Reveal className="relative text-center">
+              <div className="mx-auto mb-5 h-12 w-20"><ArchitecturalRule /></div>
+              <p className="display-name text-[2.1rem] tracking-[0.04em]">{ev.name}</p>
+              <div className="rule-gold mx-auto mt-3 w-16" />
+              <p className="mt-4 font-sans text-[0.65rem] tracking-[0.34em] text-foreground uppercase">{ev.date}</p>
+              <p className="mt-1.5 font-display text-xl text-primary">{ev.time}</p>
+              <p className="mt-3 font-display text-base text-foreground">{ev.venue}</p>
+              <p className="font-sans text-[0.7rem] tracking-[0.2em] text-muted-foreground uppercase">{ev.city}</p>
+              {ev.note && <p className="mt-2 font-display text-sm text-muted-foreground italic">{ev.note}</p>}
+              {ev.mapsUrl && <a href={ev.mapsUrl} target="_blank" rel="noreferrer noopener" className="mt-5 inline-block border-b border-accent pb-1 font-sans text-[0.6rem] tracking-[0.36em] text-primary uppercase">{t.location}</a>}
+            </Reveal>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
+function VenueSection() {
+  const d = useWedding();
+  const { t } = useLanguage();
+  return (
+    <Section className="relative py-24">
+      <div className="relative mx-auto flex min-h-[470px] max-w-[330px] items-center justify-center">
+        <DoorwayStage className="pointer-events-none absolute inset-0 h-full w-full ink-line opacity-80" compact />
+        <div className="relative px-10 pt-14 text-center">
+          <Eyebrow>{t.venue}</Eyebrow>
+          <Reveal delay={0.15}><h2 className="display-name mt-4 text-[1.9rem] leading-tight">{d.venue.name}</h2></Reveal>
+          <Reveal delay={0.25}>
+            <p className="mt-4 font-display text-base text-muted-foreground">{d.venue.address}</p>
+            <p className="font-sans text-[0.68rem] tracking-[0.24em] text-muted-foreground uppercase">{d.venue.city}</p>
+          </Reveal>
+          {d.venue.mapsUrl && <Reveal delay={0.35}><a href={d.venue.mapsUrl} target="_blank" rel="noreferrer noopener" className="mt-7 inline-block border border-accent px-6 py-3 font-sans text-[0.6rem] tracking-[0.36em] text-primary uppercase">{t.directions}</a></Reveal>}
+          {d.venue.imageUrl && <img src={d.venue.imageUrl} alt={d.venue.name || "Venue"} loading="lazy" className="mx-auto mt-8 max-h-44 w-full object-cover" />}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function GalleryImage({ image, index, reduced }: { image: WeddingData["gallery"][number]; index: number; reduced: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [26, -26]);
+  const scale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [1.06, 1.14]);
+  const odd = index % 2 === 1;
+
+  return (
+    <div ref={ref} className={`relative ${image.span === "tall" ? "w-[78%]" : "w-[88%]"} ${odd ? "ml-auto" : "mr-auto"}`}>
+      <motion.div style={{ y }} className="relative overflow-hidden border border-border">
+        <motion.img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" style={{ scale }} className="h-full w-full object-cover" />
+        <div className="pointer-events-none absolute inset-0 bg-primary/5 mix-blend-multiply" />
+      </motion.div>
+    </div>
+  );
+}
+
+function GallerySection({ reduced }: { reduced: boolean }) {
+  const d = useWedding();
+  const { t } = useLanguage();
+  return (
+    <Section className="relative py-20">
+      <div className="text-center"><Eyebrow>{t.moments}</Eyebrow><Reveal delay={0.1}><h2 className="display-name mt-4 text-4xl">{t.gallery}</h2></Reveal></div>
+      <div className="mt-16 space-y-20">{d.gallery.map((img, i) => <GalleryImage key={img.src} image={img} index={i} reduced={reduced} />)}</div>
+      <ArchitecturalRule />
+    </Section>
+  );
+}
+
+function RsvpSection() {
+  const d = useWedding();
+  const { t } = useLanguage();
+  return (
+    <Section className="relative py-20">
+      <div className="relative border border-border px-4 py-10">
+        <div className="absolute -inset-2 border border-accent/40 pointer-events-none" />
+        <div className="text-center"><Eyebrow>{t.respond}</Eyebrow><Reveal delay={0.1}><h2 className="display-name mt-4 text-4xl">{t.rsvp}</h2></Reveal></div>
+        <div className="relative mt-10"><Rsvp deadline={d.rsvpDeadline} /></div>
+      </div>
+    </Section>
+  );
+}
+
+function ContactSection() {
+  const d = useWedding();
+  return (
+    <Section className="relative py-16">
+      <div className="text-center"><Eyebrow>For any queries</Eyebrow><Reveal delay={0.1}><h2 className="display-name mt-4 text-4xl">Contact</h2></Reveal></div>
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        {d.contacts.map((contact, index) => {
+          const phoneDigits = contact.phone.replace(/\D/g, "");
+          const whatsappUrl = contact.whatsappUrl || (phoneDigits ? `https://wa.me/${phoneDigits}` : "");
+          return (
+            <Reveal key={`${contact.phone}-${index}`} className="border border-border px-5 py-6 text-center" delay={0.1 * index}>
+              {contact.name && <p className="display-name text-2xl">{contact.name}</p>}
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <a href={`tel:${contact.phone}`} className="border border-accent px-5 py-3 font-sans text-[0.6rem] tracking-[0.28em] text-primary uppercase">Call</a>
+                {whatsappUrl && <a href={whatsappUrl} target="_blank" rel="noreferrer noopener" className="border border-accent px-5 py-3 font-sans text-[0.6rem] tracking-[0.28em] text-primary uppercase">WhatsApp</a>}
+              </div>
+            </Reveal>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
+function Finale() {
+  const d = useWedding();
+  return (
+    <section className="relative overflow-hidden px-6 pt-28 pb-20">
+      <div className="relative mx-auto flex aspect-[360/620] w-full max-w-[390px] items-center justify-center">
+        <DoorwayStage className="pointer-events-none absolute inset-0 h-full w-full ink-line" compact />
+        <div className="relative mt-16 max-w-[62%] text-center">
+          <p className="display-name text-[1.7rem] leading-tight sm:text-3xl">{d.couple.groom}<span className="mx-1.5 text-accent">{d.couple.joiner}</span>{d.couple.bride}</p>
+          <div className="rule-gold mx-auto mt-4 w-16" />
+          <p className="mt-4 font-sans text-[0.55rem] leading-[1.9] tracking-[0.3em] text-muted-foreground uppercase sm:text-[0.62rem]">{d.finale.title}</p>
+        </div>
+      </div>
+      <div className="mx-auto mt-10 max-w-[430px] text-center">
+        <Reveal><p className="font-display text-base text-muted-foreground italic">{d.finale.note}</p></Reveal>
+        <Reveal delay={0.3}><p className="eyebrow mt-12 text-[0.5rem]">{d.couple.groom} {d.couple.joiner} {d.couple.bride} · {d.headlineDate}</p></Reveal>
+      </div>
+    </section>
+  );
+}
