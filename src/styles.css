@@ -46,14 +46,14 @@
 
   --font-display: "Cormorant Garamond", "Times New Roman", serif;
   --font-sans: "Jost", ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: "Noto Naskh Arabic", "Amiri", serif;
-  --font-devanagari: "Noto Serif Devanagari", serif;
+  --font-arabic: "Amiri", serif;
+  --font-devanagari: "Halant", serif;
 }
 
 :root {
   --radius: 0.25rem;
 
-  --ivory: #05060A;
+  --ivory: #30161c;
   --champagne: #F0D18B;
   --gold: #D6A85F;
   --henna: #D6A85F;
@@ -68,13 +68,13 @@
   --popover: var(--card);
   --popover-foreground: var(--ink);
   --primary: var(--henna);
-  --primary-foreground: #05060A;
+  --primary-foreground: #30161c;
   --secondary: #0A0C11;
   --secondary-foreground: var(--ink);
   --muted: #0A0C11;
   --muted-foreground: #C79B5D;
   --accent: #B9853F;
-  --accent-foreground: #05060A;
+  --accent-foreground: #30161c;
   --destructive: #76501F;
   --destructive-foreground: #E8C982;
   --border: #A87838;
