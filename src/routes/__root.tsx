@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -38,7 +37,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    // Log error for diagnostics without leaking Lovable-specific telemetry hooks
+    console.error("[ZAR] Error boundary caught:", error);
   }, [error]);
 
   return (
@@ -77,26 +77,46 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Henna Bloom Invites" },
+      { title: "ZAR Invitations" },
       {
         name: "description",
-        content: "A hand-drawn mehendi wedding invitation.",
+        content: "Crafted with love — ZAR digital wedding invitations.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
+      // Microsoft Tiles
+      { name: "msapplication-TileColor", content: "#30161c" },
+      { name: "msapplication-TileImage", content: "/ms-icon-144x144.png" },
+      { name: "msapplication-config", content: "/browserconfig.xml" },
+      // Theme colour
+      { name: "theme-color", content: "#30161c" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Halant:wght@400;500&family=Jost:wght@300;400;500&display=swap",
       },
+      // Standard favicon
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      // Apple touch icons
+      { rel: "apple-touch-icon", href: "/apple-icon.png" },
+      { rel: "apple-touch-icon", href: "/apple-icon-57x57.png", sizes: "57x57" },
+      { rel: "apple-touch-icon", href: "/apple-icon-60x60.png", sizes: "60x60" },
+      { rel: "apple-touch-icon", href: "/apple-icon-72x72.png", sizes: "72x72" },
+      { rel: "apple-touch-icon", href: "/apple-icon-76x76.png", sizes: "76x76" },
+      { rel: "apple-touch-icon", href: "/apple-icon-114x114.png", sizes: "114x114" },
+      { rel: "apple-touch-icon", href: "/apple-icon-120x120.png", sizes: "120x120" },
+      { rel: "apple-touch-icon", href: "/apple-icon-144x144.png", sizes: "144x144" },
+      { rel: "apple-touch-icon", href: "/apple-icon-152x152.png", sizes: "152x152" },
+      { rel: "apple-touch-icon", href: "/apple-icon-180x180.png", sizes: "180x180" },
+      // Web app manifest
+      { rel: "manifest", href: "/manifest.json" },
     ],
   }),
   shellComponent: RootShell,

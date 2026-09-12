@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Invitation } from "./index";
 import { fetchPublicInvitation, getSlugFromPathname, mapInvitation, mapShopFallback, type PublicInvitationResponse } from "@/lib/invitation-content";
+import { FloatingBrandBar } from "@/components/invitation/FloatingBrandBar";
 
 export const Route = createFileRoute("/$slug")({
   component: SlugInvitation,
@@ -28,7 +29,7 @@ function SlugInvitation() {
   if (result.state === "fallback") {
     const shop = mapShopFallback(result.shop);
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+      <main className="flex min-h-screen items-center justify-center bg-background px-6 pb-20 text-center">
         <div className="max-w-sm">
           <p className="eyebrow">{shop.name}</p>
           <h1 className="display-name mt-4 text-4xl">Invitation unavailable</h1>
@@ -38,6 +39,8 @@ function SlugInvitation() {
           {shop.whatsapp && <a href={`https://wa.me/${shop.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer noopener" className="mt-6 inline-block border border-accent px-5 py-3 text-xs uppercase tracking-widest">Contact on WhatsApp</a>}
           {shop.businessContact && <p className="mt-5 text-xs text-muted-foreground">{shop.businessContact}</p>}
         </div>
+        {/* Fixed bottom brand showcase — always visible regardless of scroll */}
+        <FloatingBrandBar shop={shop} />
       </main>
     );
   }
@@ -47,12 +50,14 @@ function SlugInvitation() {
 
 function StatusPage({ title, message, home = false }: { title: string; message: string; home?: boolean }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 pb-20 text-center">
       <div>
         <h1 className="display-name text-4xl">{title}</h1>
         <p className="mt-3 text-sm text-muted-foreground">{message}</p>
         {home && <Link to="/" className="mt-6 inline-block border border-accent px-5 py-3 text-xs uppercase tracking-widest">Go home</Link>}
       </div>
+      {/* Fixed bottom brand showcase — always visible regardless of scroll */}
+      <FloatingBrandBar />
     </main>
   );
 }

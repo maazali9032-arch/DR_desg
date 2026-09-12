@@ -12,6 +12,8 @@ import { LanguageSwitcher } from "@/components/invitation/LanguageSwitcher";
 import { LanguageProvider, useLanguage, type Language } from "@/lib/language";
 import { OrnamentStage, DrawPath, DrawCircle } from "@/components/animation/Draw";
 import { IntroArchitecture, CountdownArchitecture, EventsArchitecture, VenueArchitecture, FinaleArchitecture, RsvpFrame } from "@/components/doorway/ReferenceArchitecture";
+import { FloatingBrandBar } from "@/components/invitation/FloatingBrandBar";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -153,7 +155,7 @@ export function Invitation({ data = wedding }: { data?: WeddingData }) {
   return (
     <LanguageProvider language={language} setLanguage={setLanguage}>
       <WeddingContext.Provider value={d}>
-        <main className="paper-grain paper-vignette relative min-h-screen overflow-x-hidden bg-background">
+        <main className="paper-grain paper-vignette relative min-h-screen overflow-x-hidden bg-background pb-20">
           <OpenGate groom={d.couple.groom} bride={d.couple.bride} date={d.headlineDate} city={d.venue.city} onOpen={onOpen} />
 
           {opened && (
@@ -177,6 +179,9 @@ export function Invitation({ data = wedding }: { data?: WeddingData }) {
               </motion.div>
             </>
           )}
+
+          {/* Fixed bottom brand showcase — always visible regardless of scroll */}
+          <FloatingBrandBar />
         </main>
       </WeddingContext.Provider>
     </LanguageProvider>
