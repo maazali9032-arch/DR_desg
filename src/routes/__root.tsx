@@ -16,9 +16,9 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Invitation not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          This invitation link is invalid.
         </p>
         <div className="mt-6">
           <Link
@@ -33,7 +33,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -83,7 +83,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Crafted with love — ZAR digital wedding invitations.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:title", content: "ZAR Wedding Invitation" },
+      { property: "og:description", content: "Open a private wedding invitation." },
+      { property: "og:image", content: "/og-image.png" },
+      { property: "og:image:alt", content: "ZAR Invitations" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "ZAR Wedding Invitation" },
+      { name: "twitter:description", content: "Open a private wedding invitation." },
+      { name: "twitter:image", content: "/og-image.png" },
       // Microsoft Tiles
       { name: "msapplication-TileColor", content: "#30161c" },
       { name: "msapplication-TileImage", content: "/ms-icon-144x144.png" },

@@ -34,3 +34,6 @@ dist-ssr
 
 
 src/assets/ZAR_V2_Design_Application_Specification.docx
+
+# Vercel generated build output
+.vercel/

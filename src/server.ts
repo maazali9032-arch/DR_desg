@@ -1,6 +1,7 @@
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
+import { getSlugFromPathname } from "./lib/invitation-path";
 import { renderErrorPage } from "./lib/error-page";
 
 type ServerEntry = {
@@ -47,9 +48,34 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const pathname = new URL(request.url).pathname;
+      if (pathname !== "/" && !getSlugFromPathname(pathname)) {
+        return new Response(renderErrorPage(true), {
+          status: 404,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        });
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      if (!normalized.headers.get("content-type")?.includes("text/html")) return normalized;
+      // Share crawlers do not run React. Make only the static brand asset absolute
+      // in initial HTML; invitation canonical URLs still come exclusively from RPC.
+      const image = new URL("/og-image.png", request.url).href
+        .replaceAll("&", "&amp;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("<", "&lt;");
+      const html = (await normalized.text()).replaceAll(
+        'content="/og-image.png"',
+        `content="${image}"`,
+      );
+      const headers = new Headers(normalized.headers);
+      headers.delete("content-length");
+      return new Response(html, {
+        status: normalized.status,
+        statusText: normalized.statusText,
+        headers,
+      });
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
